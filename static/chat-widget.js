@@ -3,7 +3,10 @@
     chatContainer.innerHTML = `
         <div class="chat-toggle" onclick="toggleChat()">💬</div>
         <div class="chat-container" id="chatContainer">
-            <div class="chat-header">Hỏi đáp cùng Nikkie</div>
+            <div class="chat-header">
+                Hỏi đáp cùng Nikkie
+                <button class="refresh-btn" onclick="refreshData()">↻</button>
+                </div>
             <div class="chat-body" id="chatBody">
                 <div class="bot-message">Xin chào! Tôi là Nikkie, chatbot sẽ giúp bạn trả lời câu hỏi về thuốc trong nhi khoa.</div>
             </div>
@@ -62,6 +65,16 @@ kii            justify-content: center;
             font-size: 16px;
             font-weight: 500;
             text-align: center;
+        }
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .refresh-btn:hover {
+            color: #ddd;
         }
         .chat-body {
             flex: 1;
@@ -171,10 +184,10 @@ kii            justify-content: center;
         chatBody.scrollTop = chatBody.scrollHeight;
 
         try {
-            const response = await fetch("http://localhost:5000/chat", {
+            const response = await fetch("https://nikkie-chatbot.onrender.com/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ query })
+                body: JSON.stringify({ query, refresh: false })
             });
             const data = await response.json();
 
@@ -186,6 +199,28 @@ kii            justify-content: center;
             const botMsg = document.createElement("div");
             botMsg.className = "bot-message";
             botMsg.textContent = "Lỗi kết nối, vui lòng thử lại.";
+            chatBody.appendChild(botMsg);
+        }
+
+        chatBody.scrollTop = chatBody.scrollHeight;
+    };
+    window.refreshData = async function () {
+        const chatBody = document.getElementById("chatBody");
+        try {
+            const response = await fetch("https://drug-search-bot.onrender.com/refresh", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" }
+            });
+            const data = await response.json();
+
+            const botMsg = document.createElement("div");
+            botMsg.className = "bot-message";
+            botMsg.textContent = data.message || data.error || "Làm mới dữ liệu thành công.";
+            chatBody.appendChild(botMsg);
+        } catch (error) {
+            const botMsg = document.createElement("div");
+            botMsg.className = "bot-message";
+            botMsg.textContent = "Lỗi làm mới dữ liệu.";
             chatBody.appendChild(botMsg);
         }
 
