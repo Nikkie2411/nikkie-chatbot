@@ -1,12 +1,12 @@
 (function () {
     const chatContainer = document.createElement("div");
     chatContainer.innerHTML = `
-        <div class="chat-toggle" onclick="toggleChat()">💬</div>
+        <div class="chat-toggle" onclick="toggleChat()" title="Hỏi đáp cùng Nikkie">💬</div>
         <div class="chat-container" id="chatContainer">
-            <div class="chat-header">
+            <div class="chat-header" onclick="toggleChat()">
                 Hỏi đáp cùng Nikkie
                 <button class="refresh-btn" onclick="refreshData()">↻</button>
-                </div>
+            </div>
             <div class="chat-body" id="chatBody">
                 <div class="bot-message">Xin chào! Tôi là Nikkie, chatbot sẽ giúp bạn trả lời câu hỏi về thuốc trong nhi khoa.</div>
             </div>
@@ -53,9 +53,41 @@
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             z-index: 1001;
             transition: background 0.3s;
+            animation: shake 2s infinite; /* Hiệu ứng rung rung */
+            position: relative; /* Để định vị tooltip */
+        }
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            10%, 20% { transform: translateX(-5px); }
+            30%, 40% { transform: translateX(5px); }
+            50% { transform: translateX(-3px); }
+            60%, 70% { transform: translateX(3px); }
+            80% { transform: translateX(-1px); }
+            90% { transform: translateX(1px); }
+            100% { transform: translateX(0); }
         }
         .chat-toggle:hover {
             background: #218838;
+        }
+        .chat-toggle::after {
+            content: attr(title);
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: #28a745;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: 'Roboto', sans-serif;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .chat-toggle:hover::after {
+            opacity: 1;
+            visibility: visible;
         }
         .chat-header {
             background: #28a745;
@@ -65,6 +97,10 @@
             font-size: 16px;
             font-weight: 500;
             text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer; /* Thêm con trỏ để người dùng biết có thể bấm */
         }
         .refresh-btn {
             background: none;
@@ -204,6 +240,7 @@
 
         chatBody.scrollTop = chatBody.scrollHeight;
     };
+
     window.refreshData = async function () {
         const chatBody = document.getElementById("chatBody");
         try {
