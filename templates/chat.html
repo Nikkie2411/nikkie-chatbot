@@ -20,7 +20,6 @@
             font-family: 'Roboto', sans-serif;
             border: 1px solid #e0e0e0;
         }
-
         .chat-toggle {
             position: fixed;
             bottom: 20px;
@@ -39,11 +38,9 @@
             z-index: 1001;
             transition: background 0.3s;
         }
-
         .chat-toggle:hover {
-            background: #218838; /* Màu xanh đậm khi hover */
+            background: #218838;
         }
-
         .chat-header {
             background: #28a745;
             color: #fff;
@@ -52,8 +49,20 @@
             font-size: 16px;
             font-weight: 500;
             text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-
+        .refresh-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .refresh-btn:hover {
+            color: #ddd;
+        }
         .chat-body {
             flex: 1;
             padding: 15px;
@@ -61,7 +70,6 @@
             max-height: 400px;
             background: #f9f9f9;
         }
-
         .user-message {
             background: #28a745;
             color: #fff;
@@ -75,7 +83,6 @@
             line-height: 1.5;
             font-size: 14px;
         }
-
         .bot-message {
             background: #f1f1f1;
             color: #333;
@@ -91,13 +98,11 @@
             border: 1px solid #e0e0e0;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
-
         .bot-message::before {
             content: "• ";
             color: #28a745;
             font-weight: bold;
         }
-
         .chat-input {
             display: flex;
             padding: 10px;
@@ -105,7 +110,6 @@
             background: #fff;
             border-radius: 0 0 15px 15px;
         }
-
         .chat-input input {
             flex: 1;
             padding: 10px;
@@ -115,7 +119,6 @@
             font-size: 14px;
             font-family: 'Roboto', sans-serif;
         }
-
         .chat-input button {
             margin-left: 10px;
             padding: 10px 20px;
@@ -127,11 +130,9 @@
             font-size: 14px;
             transition: background 0.3s;
         }
-
         .chat-input button:hover {
             background: #218838;
         }
-
         @media (max-width: 400px) {
             .chat-container {
                 width: 90%;
@@ -144,7 +145,10 @@
 <body>
     <div class="chat-toggle" onclick="toggleChat()">💬</div>
     <div class="chat-container" id="chatContainer">
-        <div class="chat-header">Hỏi đáp cùng Nikkie</div>
+        <div class="chat-header">
+            Hỏi đáp cùng Nikkie
+            <button class="refresh-btn" onclick="refreshData()">↻</button>
+        </div>
         <div class="chat-body" id="chatBody">
             <div class="bot-message">Xin chào! Tôi là Nikkie, chatbot sẽ giúp bạn trả lời câu hỏi về thuốc trong nhi khoa.</div>
         </div>
@@ -186,7 +190,7 @@
                 const response = await fetch("/chat", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query })
+                    body: JSON.stringify({ query, refresh: false })
                 });
                 const data = await response.json();
 
@@ -198,6 +202,29 @@
                 const botMsg = document.createElement("div");
                 botMsg.className = "bot-message";
                 botMsg.textContent = "Lỗi kết nối, vui lòng thử lại.";
+                chatBody.appendChild(botMsg);
+            }
+
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+
+        async function refreshData() {
+            const chatBody = document.getElementById("chatBody");
+            try {
+                const response = await fetch("/refresh", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" }
+                });
+                const data = await response.json();
+
+                const botMsg = document.createElement("div");
+                botMsg.className = "bot-message";
+                botMsg.textContent = data.message || data.error || "Làm mới dữ liệu thành công.";
+                chatBody.appendChild(botMsg);
+            } catch (error) {
+                const botMsg = document.createElement("div");
+                botMsg.className = "bot-message";
+                botMsg.textContent = "Lỗi làm mới dữ liệu.";
                 chatBody.appendChild(botMsg);
             }
 
