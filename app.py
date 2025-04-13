@@ -6,18 +6,14 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    if request.method == "POST":
-        query = request.form["query"]
-        response = answer_query(query)
-        return render_template("index.html", response=response, query=query)
-    return render_template("index.html", response="", query="")
+    return redirect("/chat-widget")  # Chuyển hướng từ / sang /chat-widget
 
 @app.route("/chat", methods=["POST"])
 def chat():
     try:
         data = request.get_json()
         query = data.get("query", "")
-        refresh = data.get("refresh", False)  # Lấy tham số refresh từ request
+        refresh = data.get("refresh", False)
         if not query:
             return jsonify({"error": "Query không được để trống"}), 400
         response = answer_query(query, refresh_data=refresh)
@@ -33,7 +29,7 @@ def chat_widget():
 @app.route("/refresh", methods=["POST"])
 def refresh():
     try:
-        load_data()  # Tải lại dữ liệu từ Google Drive
+        load_data()
         return jsonify({"message": "Dữ liệu đã được làm mới."})
     except Exception as e:
         print(f"Debug - Lỗi làm mới dữ liệu: {e}")
