@@ -2,23 +2,21 @@ import pandas as pd
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
 
-# URL của file trên Google Drive
 GOOGLE_DRIVE_URL = "https://drive.google.com/uc?export=download&id=1kBkDo4f-bvjPnTMPOl3e8Ebyyuf15KQS"
 
-# Biến toàn cục để lưu dữ liệu và embeddings
 df = None
 embeddings_dict = {}
 model = SentenceTransformer('all-MiniLM-L6-v2')
+data_load_error = None  # Biến lưu lỗi nếu tải dữ liệu thất bại
 
 def load_data():
-    global df, embeddings_dict
+    global df, embeddings_dict, data_load_error
     try:
-        # Tải file từ Google Drive
         df = pd.read_csv(GOOGLE_DRIVE_URL, encoding="utf-8-sig")
         print("Loaded data from Google Drive successfully.")
+        data_load_error = None  # Reset lỗi nếu tải thành công
 
-        # Tạo embeddings cho các cột cần thiết
-        embeddings_dict.clear()  # Xóa embeddings cũ
+        embeddings_dict.clear()
         target_columns = ["2_1lieu_tre_so_sinh", "2_2lieu_tre_em"]
         for column in target_columns:
             if column in df.columns:
@@ -28,18 +26,19 @@ def load_data():
                     embeddings_dict[column] = (texts, embeddings)
     except Exception as e:
         print(f"Error loading data from Google Drive: {e}")
+        data_load_error = str(e)
 
-# Tải dữ liệu lần đầu khi ứng dụng khởi động
 load_data()
 
 def answer_query(query, refresh_data=False):
-    global df, embeddings_dict
+    global df, embeddings_dict, data_load_error
     try:
-        # Nếu yêu cầu refresh dữ liệu
         if refresh_data:
             print("Refreshing data...")
             load_data()
 
+        if data_load_error:
+            return f"Lỗi tải dữ liệu: {data_load_error}"
         if df is None or not embeddings_dict:
             return "Dữ liệu chưa được tải. Vui lòng thử lại sau."
 
