@@ -45,11 +45,11 @@
             background: #28a745;
             color: #fff;
             border-radius: 50%;
-            display: flex -webkit-flex;
+            display: flex;
             align-items: center;
-kii            justify-content: center;
+            justify-content: center;
             cursor: pointer;
-            font-size: 24, sans-serif;
+            font-size: 24px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
             z-index: 1001;
             transition: background 0.3s;
@@ -207,7 +207,7 @@ kii            justify-content: center;
     window.refreshData = async function () {
         const chatBody = document.getElementById("chatBody");
         try {
-            const response = await fetch("https://drug-search-bot.onrender.com/refresh", {
+            const response = await fetch("https://nikkie-chatbot.onrender.com/refresh", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" }
             });
